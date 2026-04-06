@@ -1,25 +1,31 @@
 package com.bbyoda.security.authentication.jwt;
 
-import com.bbyoda.security.user.User;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
 import java.time.Instant;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 
+import com.bbyoda.security.user.User;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class JwtService {
+
+    @Value("${app.security.jwt-secret}")
     private String jwtSecret;
 
+    @Value("${app.security.jwt-expiration}")
     private long jwtExpirationInMs;
 
     public String generateAccessToken(User user) {
@@ -54,6 +60,64 @@ public class JwtService {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 not available", e);
         }
+    }
+
+    public boolean isTokenValid(String token, String expectedUsername) {
+        try {
+            String subject = extractUsername(token);
+            return subject.equals(expectedUsername) && !isTokenExpired(token);
+        } catch (IllegalArgumentException e) {
+            log.debug("Token validation failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean isTokenStructurallyValid(String token) {
+        try {
+            extractAllClaims(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.debug("JWT expired");
+        } catch (SignatureException e) {
+            log.warn("JWT signature invalid — possible tampering");
+        } catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e) {
+            log.warn("JWT malformed: {}", e.getMessage());
+        }
+
+        return false;
+    }
+
+    // ── Claim extraction ───────────────────────────────────────────────────
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public Long extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("userId", Long.class));
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        return resolver.apply(extractAllClaims(token));
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private SecretKey getSigningKey() {
