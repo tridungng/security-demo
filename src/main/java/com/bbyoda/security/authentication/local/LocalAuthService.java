@@ -1,17 +1,20 @@
 package com.bbyoda.security.authentication.local;
 
-import com.bbyoda.security.common.dto.TokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.bbyoda.security.authentication.jwt.JwtService;
+import com.bbyoda.security.common.dto.TokenResponse;
 import com.bbyoda.security.common.dto.AuthDtos.LoginRequest;
 import com.bbyoda.security.common.dto.AuthDtos.RegisterRequest;
 import com.bbyoda.security.user.UserRepository;
@@ -62,6 +65,19 @@ public class LocalAuthService {
         return issueTokens(saved, httpResponse, null, null);
     }
 
+    public TokenResponse login(LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        log.info("Login attempt: {}", request.getEmail());
+
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                request.getEmail().toLowerCase().trim(), request.getPassword()));
+
+        User user = (User) auth.getPrincipal();
+        String ip = extractClientIp(httpRequest);
+        String agent = httpRequest.getHeader("User-Agent");
+
+        return issueTokens(user, httpResponse, agent, ip);
+    }
+
     private TokenResponse issueTokens(User user, HttpServletResponse response, String userAgent, String clientIp) {
         String accessToken = jwtService.generateAccessToken(user);
         String rawRefresh = jwtService.generateRefreshTokenValue();
@@ -99,5 +115,13 @@ public class LocalAuthService {
         String cookie = String.format(
                 "%s=; Max-Age=0; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict", REFRESH_COOKIE_NAME);
         response.addHeader("Set-Cookie", cookie);
+    }
+
+    private String extractClientIp(HttpServletRequest request) {
+        String xff = request.getHeader("X-Forwarded-For");
+        if (xff != null && !xff.isBlank()) return xff.split(",")[0].trim();
+        String realIp = request.getHeader("X-Real-IP");
+        if (realIp != null && !realIp.isBlank()) return realIp;
+        return request.getRemoteAddr();
     }
 }
