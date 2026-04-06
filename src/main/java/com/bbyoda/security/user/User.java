@@ -10,6 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
+@Entity
+@Table(
+        name = "users",
+        indexes = {@Index(name = "idx_user_email", columnList = "email", unique = true)})
 @Getter
 @Setter
 @Builder
