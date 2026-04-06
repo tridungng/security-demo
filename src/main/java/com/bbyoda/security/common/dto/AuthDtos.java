@@ -1,4 +1,4 @@
-package com.bbyoda.security.common;
+package com.bbyoda.security.common.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
