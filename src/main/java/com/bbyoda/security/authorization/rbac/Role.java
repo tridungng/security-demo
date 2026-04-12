@@ -11,9 +11,16 @@ import java.util.Set;
 @Getter
 @RequiredArgsConstructor
 public enum Role {
-    USER(Set.of(Permission.USER_READ, Permission.USER_WRITE, Permission.USER_DELETE));
-//    MODERATOR(),
-//    ADMIN();
+    USER(Set.of(Permission.USER_READ, Permission.USER_WRITE, Permission.USER_DELETE)),
+    MODERATOR(Set.of(Permission.USER_READ, Permission.USER_WRITE, Permission.ADMIN_READ)),
+    ADMIN(Set.of(
+            Permission.USER_READ,
+            Permission.USER_WRITE,
+            Permission.USER_DELETE,
+            Permission.ADMIN_READ,
+            Permission.ADMIN_WRITE,
+            Permission.ADMIN_DELETE,
+            Permission.AUDIT_READ));
 
     private final Set<Permission> permissions;
 
