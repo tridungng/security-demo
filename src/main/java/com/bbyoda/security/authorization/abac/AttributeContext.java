@@ -12,6 +12,8 @@ import java.util.Map;
 public class AttributeContext {
     private final User subject;
 
+    private final String subjectDepartment;
+
     @Builder.Default
     private final int subjectClearanceLevel = 0;
 
