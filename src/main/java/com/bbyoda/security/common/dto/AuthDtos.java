@@ -1,14 +1,15 @@
 package com.bbyoda.security.common.dto;
 
+import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import jakarta.validation.constraints.NotBlank;
 
-import java.time.LocalDateTime;
+import com.bbyoda.security.authorization.rbac.Role;
 
 public class AuthDtos {
 
@@ -58,7 +59,7 @@ public class AuthDtos {
         private String firstName;
         private String lastName;
         private String email;
-        private String role;
+        private Role role;
         private boolean enabled;
         private boolean accountNonLocked;
         private LocalDateTime createdAt;
