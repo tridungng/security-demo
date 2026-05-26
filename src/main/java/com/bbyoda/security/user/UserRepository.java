@@ -19,6 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<Role> findAllByRole(String email);
 
+    Optional<User> findByProviderIdAndAuthProvider(String providerId, AuthProvider authProvider);
+
     @Modifying
     @Query("UPDATE User u SET u.accountNonLocked = :locked WHERE u.id = :id")
     void updateAccountLockStatus(@Param("id") String id, @Param("locked") boolean locked);
