@@ -3,9 +3,9 @@ package com.bbyoda.security.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.client.RestClient;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -57,15 +57,15 @@ public class ApplicationConfig {
         return config.getAuthenticationManager();
     }
 
-    @Bean("opaRestClient")
-    public RestClient restClient() {
-        JacksonJsonHttpMessageConverter converter = new JacksonJsonHttpMessageConverter();
-        converter.setSupportedMediaTypes(
-                List.of(MediaType.APPLICATION_JSON, MediaType.valueOf("application/json;charset=UTF-8")));
+    @Bean
+    public RestClient.Builder builder() {
+        return RestClient.builder();
+    }
 
-        return RestClient.builder()
-                .baseUrl(opaBaseUrl)
-                .configureMessageConverters(builder -> builder.withJsonConverter(converter))
+    @Bean("opaRestClient")
+    RestClient opaRestClient(RestClient.Builder builder) {
+        return builder.baseUrl(opaBaseUrl)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }
 }
