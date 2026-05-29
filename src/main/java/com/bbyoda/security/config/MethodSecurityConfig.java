@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-
 import lombok.RequiredArgsConstructor;
 
 import com.bbyoda.security.authorization.abac.ResourcePermissionEvaluator;
