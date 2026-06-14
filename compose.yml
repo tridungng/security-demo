@@ -1,0 +1,12 @@
+services:
+  opa:
+    image: docker.io/openpolicyagent/opa:latest
+    container_name: opa
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./src/main/resources/opa:/policies:Z
+    command:
+      - run
+      - --server
+      - /policies/authz.rego
