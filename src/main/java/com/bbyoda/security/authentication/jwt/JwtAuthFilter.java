@@ -43,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String jwt = authHeader.substring(BEARER_PREFIX.length());
+        final String jwt = authHeader.substring(BEARER_PREFIX.length()).trim();
 
         if (!jwtService.isTokenStructurallyValid(jwt)) {
             filterChain.doFilter(request, response);
@@ -59,6 +59,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
                 log.debug("JWT failed full validation for user={}", username);
             }
