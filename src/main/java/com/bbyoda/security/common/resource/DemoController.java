@@ -23,21 +23,21 @@ import com.bbyoda.security.user.UserRepository;
 
 /**
  * Demo endpoints covering all security layers: Phase 1-4.
- *
+ * <p>
  * Test matrix:
- *
+ * <p>
  *   GET  /demo/public                          → no token
  *   GET  /demo/protected                       → any valid token
  *   GET  /demo/admin-only                      → ROLE_ADMIN
  *   GET  /demo/permission                      → admin:read authority (MODERATOR or ADMIN)
- *
+ * <p>
  *   GET  /demo/abac/document/{id}              → ABAC: owner or admin
  *   GET  /demo/abac/document/{id}/business     → ABAC: owner + business hours
  *   GET  /demo/abac/department/{dept}          → ABAC: same department
  *   GET  /demo/abac/hasPermission/{id}         → uses hasPermission() SpEL
- *
+ * <p>
  *   GET  /demo/opa/document/{id}               → OPA policy decision
- *
+ * <p>
  *   GET  /users/me                             → own profile
  *   GET  /users                                → ADMIN: all users
  */
