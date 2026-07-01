@@ -196,18 +196,21 @@ public class DemoController {
     }
 
     /**
-     * ABAC: hasPermission() SpEL — uses ResourcePermissionEvaluator.
+     * Demo ABAC endpoint using {@code hasPermission()} with a custom {@code ResourcePermissionEvaluator}.
      * <p>
-     * The second param (ownerId) acts as the resource owner reference.
-     * ResourcePermissionEvaluator routes "Document"/"read" to AbacService.isOwnerOrAdmin().
+     * This is a simplified example where {@code resourceOwnerId} stands in for the resource owner reference. In a real
+     * application, the input would usually be a resource identifier, and the evaluator would load the resource and
+     * resolve its owner or attributes before making the decision.
+     * <p>
+     * The evaluator maps {@code "Document"} / {@code "read"} to {@code AbacService.isOwnerOrAdmin()}.
      */
-    @GetMapping("/demo/abac/hasPermission/{ownerId}")
-    @PreAuthorize("hasPermission(#ownerId, 'Document', 'read')")
+    @GetMapping("/demo/abac/hasPermission/{resourceOwnerId}")
+    @PreAuthorize("hasPermission(#resourceOwnerId, 'Document', 'read')")
     public ResponseEntity<Map<String, String>> hasPermissionDemo(
-            @PathVariable Long ownerId, @AuthenticationPrincipal User user) {
+            @PathVariable Long resourceOwnerId, @AuthenticationPrincipal User user) {
         return ResponseEntity.ok(Map.of(
                 "message", "hasPermission('Document', 'read') granted",
-                "resourceOwner", String.valueOf(ownerId),
+                "resourceOwner", String.valueOf(resourceOwnerId),
                 "user", user.getEmail()));
     }
 

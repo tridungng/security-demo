@@ -47,13 +47,13 @@ public class ResourcePermissionEvaluator implements PermissionEvaluator {
         if (!(authentication.getPrincipal() instanceof User user)) return false;
 
         String action = permission.toString().toLowerCase();
-        Long resourceId = targetId instanceof Long id ? id : null;
+        Long resourceOwnerId = targetId instanceof Long id ? id : null;
 
         log.debug(
                 "hasPermission check: user={} targetType={} targetId={} action={}",
                 user.getEmail(),
                 targetType,
-                resourceId,
+                resourceOwnerId,
                 action);
 
         return switch (targetType) {
@@ -61,15 +61,15 @@ public class ResourcePermissionEvaluator implements PermissionEvaluator {
             // Document: owner or admin for read; owner-only or admin for write/delete
             case "Document" ->
                 switch (action) {
-                    case "read", "write", "delete" -> abacService.isOwnerOrAdmin(user, resourceId);
+                    case "read", "write", "delete" -> abacService.isOwnerOrAdmin(user, resourceOwnerId);
                     default -> false;
                 };
 
             // Report: restricted to business hours AND owner/admin
             case "Report" ->
                 switch (action) {
-                    case "read" -> abacService.isOwnerOrAdminDuringBusinessHours(user, resourceId);
-                    case "write" -> abacService.isOwnerOrAdmin(user, resourceId);
+                    case "read" -> abacService.isOwnerOrAdminDuringBusinessHours(user, resourceOwnerId);
+                    case "write" -> abacService.isOwnerOrAdmin(user, resourceOwnerId);
                     default -> false;
                 };
 
