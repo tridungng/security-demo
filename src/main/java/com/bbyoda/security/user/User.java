@@ -33,7 +33,11 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false, length = 80)
+    /**
+     * Nullable for OAuth2 users — they never set a password.
+     * LocalAuthService rejects /auth/login for non-LOCAL providers.
+     */
+    @Column(length = 60)
     private String password;
 
     @Enumerated(EnumType.STRING)
