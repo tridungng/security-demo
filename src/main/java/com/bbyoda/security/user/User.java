@@ -95,6 +95,8 @@ public class User implements UserDetails {
         updatedAt = LocalDateTime.now();
     }
 
+    // ── UserDetails ────────────────────────────────────────────────────────
+
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
