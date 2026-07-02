@@ -40,6 +40,32 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    // ── OAuth2 provider fields (Phase 4) ───────────────────────────────────
+
+    /**
+     * How was this account created?
+     * Default LOCAL for backward compatibility with Phase 1/2 data.
+     */
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AuthProvider authProvider = AuthProvider.LOCAL;
+
+    /**
+     * Provider-assigned user ID (Google "sub" claim, GitHub user id).
+     * Used to find the user on subsequent OAuth2 logins without relying
+     * solely on email (email can change on the provider side).
+     */
+    @Column(length = 255)
+    private String providerId;
+
+    /**
+     * Profile picture URL from OAuth2 provider.
+     * Null for LOCAL users unless they upload a photo separately.
+     */
+    @Column(length = 512)
+    private String imageUrl;
+
     @Builder.Default
     @Column(nullable = false)
     private boolean enabled = true;
