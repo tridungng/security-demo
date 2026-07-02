@@ -4,12 +4,15 @@ import com.bbyoda.security.common.exception.InvalidTokenException;
 import jakarta.servlet.http.Cookie;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
@@ -47,6 +50,7 @@ public class LocalAuthService {
     private long refreshExpirationMs;
 
     private static final String REFRESH_COOKIE_NAME = "refresh_token";
+    private static final String REFRESH_COOKIE_PATH = "/api/v1/auth";
 
     // ── Register ───────────────────────────────────────────────────────────
 
@@ -160,16 +164,27 @@ public class LocalAuthService {
     }
 
     private void setRefreshCookie(HttpServletResponse response, String rawToken) {
-        String cookie = String.format(
-                "%s=%s; Max-Age=%d; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict",
-                REFRESH_COOKIE_NAME, rawToken, refreshExpirationMs / 1000);
-        response.addHeader("Set-Cookie", cookie);
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, rawToken)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path(REFRESH_COOKIE_PATH)
+                .maxAge(Duration.ofMillis(refreshExpirationMs))
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     private void clearRefreshCookie(HttpServletResponse response) {
-        String cookie = String.format(
-                "%s=; Max-Age=0; Path=/api/v1/auth; HttpOnly; Secure; SameSite=Strict", REFRESH_COOKIE_NAME);
-        response.addHeader("Set-Cookie", cookie);
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path(REFRESH_COOKIE_PATH)
+                .maxAge(Duration.ZERO)
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     private Optional<String> extractRefreshCookie(HttpServletRequest request) {
