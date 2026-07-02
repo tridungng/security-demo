@@ -19,6 +19,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<Role> findAllByRole(String email);
 
+    /**
+     * Phase 4: Find by OAuth2 provider + provider user ID.
+     * Used on return from OAuth2 redirect to identify the returning user without relying solely on email (email can
+     * change at the provider).
+     */
     Optional<User> findByProviderIdAndAuthProvider(String providerId, AuthProvider authProvider);
 
     @Modifying
