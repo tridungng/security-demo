@@ -1,3 +1,9 @@
 spring:
   application:
     name: security-demo
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET}             # required, no fallback
+    jwt-expiration: ${JWT_EXPIRATION:900000}
+    refresh-expiration: ${REFRESH_EXPIRATION:604800000}

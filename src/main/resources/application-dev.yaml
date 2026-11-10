@@ -1,0 +1,8 @@
+app:
+  security:
+    jwt-secret: ZGV2LW9ubHktc2VjcmV0LWNoYW5nZS1tZS1pbi1wcm9kdWN0aW9uLTAxMjM0NTY3
+
+spring:
+  h2:
+    console:
+      enabled: true
