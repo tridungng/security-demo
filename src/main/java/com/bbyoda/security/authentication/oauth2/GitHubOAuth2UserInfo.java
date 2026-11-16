@@ -7,8 +7,8 @@ import java.util.Map;
  * <p>
  * GitHub's /user endpoint returns:
  *   id         → numeric user ID (use as providerId, cast to String)
- *   name       → full display name (may be null for private accounts)
- *   email      → primary email (may be null if user hides it)
+ *   name       → full display name (maybe null for private accounts)
+ *   email      → primary email (maybe null if user hides it)
  *   avatar_url → profile picture
  *   login      → username handle
  * <p>
